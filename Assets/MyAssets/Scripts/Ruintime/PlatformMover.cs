@@ -34,7 +34,6 @@ namespace PlatformCoinLab.Runtime
             next.y = Mathf.Clamp(next.y, -9f, 9f);
 
             transform.position = next;
-
         }
     }
 }
