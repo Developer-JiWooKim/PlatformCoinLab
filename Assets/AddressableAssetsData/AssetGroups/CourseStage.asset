@@ -13,18 +13,17 @@ MonoBehaviour:
   m_Name: CourseStage
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: CourseStage
-  m_GUID: ef7a54c64ce2f7142ae99d6c50123a84
+  m_GUID: 192db398b960e474bafb1e3ff3b1d872
   m_SerializeEntries:
   - m_GUID: 9e8c095960219ac41abcc5a9a20c167b
-    m_Address: Assets/MyAssets/Prefabs/StageMain.prefab
+    m_Address: stage-main
     m_ReadOnly: 0
     m_SerializedLabels:
-    - default
     - stage-main
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 81a739f804e2d74478c45bf1de7a9604, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: cefb97afb962286459340da45ee80f24, type: 2}
-    - {fileID: 11400000, guid: 40c7827656b48874499269263f01df34, type: 2}
+    - {fileID: 11400000, guid: aadb85e717935c442802a7df19cdf09f, type: 2}
+    - {fileID: 11400000, guid: 6033d65e4e58e8f46bd06e8cfb7cbe2b, type: 2}
