@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: ef7a54c64ce2f7142ae99d6c50123a84
   m_currentHash:
     serializedVersion: 2
-    Hash: ed63361d133714396a510d5a23c60824
+    Hash: 9b61d30fe1ef0cba065cf0b8d2196ce8
   m_ExtractTypeTreeData: 0
   m_DisableWriteTypeTree: 0
   m_OptimizeCatalogSize: 0
@@ -80,11 +80,11 @@ MonoBehaviour:
       - m_Id: 5144b645690076a46b9cf7088cff4763
         m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
       - m_Id: b657a98d3addb72448cd87f96d9000ed
-        m_Value: <undefined>
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
       - m_Id: c6b2713048a85dd4695a888684eabb61
         m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
       - m_Id: dd509d86204a6b14ebe9541c01390266
-        m_Value: 'ServerData/[BuildTarget]'
+        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
     - m_InheritedParent: 
       m_Id: e871c626d11e77c42bebf1d87cd42d87
       m_ProfileName: RemotePractice
@@ -132,4 +132,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c8e0c298fe43fb649ba5ec15664103bb, type: 2}
   - {fileID: 11400000, guid: 2c730ab25d8333b4492f725ff07fba2b, type: 2}
   - {fileID: 11400000, guid: 999736e6ae1bf1245bfe253300159d49, type: 2}
-  m_ActiveProfileId: e871c626d11e77c42bebf1d87cd42d87
+  m_ActiveProfileId: b0099e013db8cf64bbe41efca3ea10e1
