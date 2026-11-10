@@ -1,10 +1,15 @@
 using UnityEngine;
 using TMPro;
+using Unity.Profiling;
 
 namespace PlatformCoinLab
 {
     public sealed class GameSession : MonoBehaviour
     {
+        private static readonly ProfilerMarker UiMarker = new("CoinLab.PresentUi");
+
+        private const string BestKey = "PlatformCoinLab.Best";
+
         [SerializeField] private Transform player;
         [SerializeField] private CoinPickup[] coins;
         [SerializeField] private AudioSource collectAudio;
@@ -15,11 +20,17 @@ namespace PlatformCoinLab
         [SerializeField] private TMP_Text resultText;
         [SerializeField] private TMP_Text statusText;
         [SerializeField] private UnityEngine.UI.Button startButton;
-
         [SerializeField] private TMP_Text bestText;
-        private const string BestKey = "PlatformCoinLab.Best";
-        private int best;
 
+        // 처음 표시할 0점과 구분하려고 -1로 시작합니다. 첫 RefreshUi에서는 반드시 갱신됩니다.
+        private int shownScore = -1;
+        private int shownSeconds = -1;
+        private int shownBest = -1;
+        private bool shownPlaying;
+        private bool shownResult;
+        private bool shownReady;
+
+        private int best;
         private AudioClip generatedCollectClip;
         private CoinRound round;
         private Vector3 startPosition;
@@ -28,7 +39,6 @@ namespace PlatformCoinLab
         private bool showingResult;
         private bool busy;
         private bool paused;
-
         public int Score => round.Score;
         public bool IsPlaying => playing;
         public bool CanMove => playing && !paused;
@@ -204,15 +214,46 @@ namespace PlatformCoinLab
 
         private void RefreshUi()
         {
-            menuPanel.SetActive(!playing && !showingResult);
-            hudPanel.SetActive(playing);
-            resultPanel.SetActive(showingResult);
-            startButton.interactable = IsReady;
-            // 0.2초가 남았을 때 0으로 보이지 않도록 올림해서 1초로 표시합니다.
-            hud.text = $"Score: {Score}  Time: {Mathf.CeilToInt(round.Remaining)}";
-            resultText.text = $"Score: {Score}";
+            // 기존 최적화 전 코드 - 텍스트가 매 프레임 생성 및 갱신되며 GC 발생함
+            // menuPanel.SetActive(!playing && !showingResult);
+            // hudPanel.SetActive(playing);
+            // resultPanel.SetActive(showingResult);
+            // startButton.interactable = IsReady;
+            // // 0.2초가 남았을 때 0으로 보이지 않도록 올림해서 1초로 표시합니다.
+            // hud.text = $"Score: {Score}  Time: {Mathf.CeilToInt(round.Remaining)}";
+            // resultText.text = $"Score: {Score}";
 
-            bestText.text = $"Best: {best}";
+            // bestText.text = $"Best: {best}";
+
+            using (UiMarker.Auto())
+            {
+                int seconds = Mathf.CeilToInt(round.Remaining);
+                bool ready = IsReady;
+
+                if (shownScore == Score
+                    && shownSeconds == seconds
+                    && shownBest == best
+                    && shownPlaying == playing
+                    && shownResult == showingResult
+                    && shownReady == ready)
+                {
+                    return;
+                }
+
+                shownScore = Score;
+                shownSeconds = seconds;
+                shownBest = best;
+                shownPlaying = playing;
+                shownResult = showingResult;
+                shownReady = ready;
+                menuPanel.SetActive(!playing && !showingResult);
+                hudPanel.SetActive(playing);
+                resultPanel.SetActive(showingResult);
+                startButton.interactable = ready;
+                hud.text = $"Score: {Score}  Time: {seconds}";
+                resultText.text = $"Score: {Score}";
+                bestText.text = $"Best: {best}";
+            }
         }
     }
 
