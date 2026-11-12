@@ -97,3 +97,6 @@ crashlytics-build.properties
 # Addressables가 콘텐츠·Player 빌드 때 생성했다 지우는 임시 link.xml (고정 보존 목록은 Assets/MyAssets/link.xml)
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/link.xml
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/link.xml.meta
+
+# 루트의 제출 압축 파일 (GitHub Release에 첨부, 100MB 초과로 커밋 불가)
+/*.zip
