@@ -13,7 +13,7 @@
 | 원인 | `PlatformMover.Update`가 입력을 XZ 평면(`new Vector3(input.x, 0, input.y)`)으로 이동시키면서 제한은 `next.y`에 적용. Y는 이동하지 않으므로 제한이 무의미했고 Z는 제한이 없었음 |
 | 수정 | `next.y = Mathf.Clamp(...)` → `next.z = Mathf.Clamp(next.z, -9f, 9f)` ([PlatformMover.cs](../Assets/MyAssets/Scripts/Ruintime/PlatformMover.cs)) |
 | 재검증 | ☐ PC: W/S 유지 시 z=±9에서 정지 ☐ Android 터치 스틱 ☐ Web |
-| 증거 | ☐ 수정 전 영상 (`git stash`로 되돌려 녹화) ☐ 수정 후 영상 |
+| 증거 | ☐ 수정 전·후 캡처 (z 좌표가 ±9를 넘는지) |
 
 ### P2. Web 빌드 실패: `wasm-ld: undefined symbol: _emval_take_value / _emval_as` — 수업 중 해결 (커밋 ac3ca4a)
 
@@ -71,7 +71,7 @@
 | 어떻게 | `Addressables.LoadResourceLocationsAsync("stage")`로 라벨이 붙은 프리팹 주소를 모아 정렬(`List<string>`), 위치 핸들은 즉시 해제. 조회 실패·0개면 기본 주소로 대체. 선택 변경 시 이전 인스턴스 해제 → 새 주소 `InstantiateAsync`. 인덱스 순환 `(i + step + n) % n` |
 | 원격 확장 | 원격 카탈로그 사용 시 서버에 라벨 붙은 새 스테이지를 배포하면 Player 재빌드 없이 목록에 추가됨 (☐ 원격 비교 절차에서 확인) |
 | 코드 | `StageLoader.Start / OnLocationsCompleted / ChangeSelection / LoadStage` |
-| 결과 | ☑ PC Player에서 stage-main·stage-a·stage-b 전환 동작 (2026-11-12) ☐ 영상 촬영 |
+| 결과 | ☑ PC Player에서 stage-main·stage-a·stage-b 전환 동작 (2026-11-12) ☐ 캡처 |
 
 ### D2. 스테이지별 최고 점수와 기존 기록 이전
 
@@ -80,7 +80,7 @@
 | 무엇 | 저장 키를 `PlatformCoinLab.Best.{address}`로 분리 |
 | 왜 | 스테이지마다 난이도가 달라 기록을 하나로 비교하면 의미가 없음. 업데이트 후 기존 사용자 기록을 잃지 않아야 함 |
 | 어떻게 | `GameSession.MigrateLegacyBest`: 이전 키가 있고 새 키가 없을 때만 `stage-main` 기록으로 복사 후 이전 키 삭제(1회 실행). `SetStageId`로 표시·저장 대상 전환, 플레이 중 변경 금지 |
-| 결과 | ☑ PC Player에서 스테이지별 기록 동작 확인 ☐ 영상 촬영 |
+| 결과 | ☑ PC Player에서 스테이지별 기록 동작 확인 ☐ 캡처 |
 
 ### D3. 터치 컨트롤 방식 전환 (조이스틱 ↔ 키패드)
 
@@ -89,7 +89,7 @@
 | 무엇 | 버튼 하나로 OnScreenStick 조이스틱과 OnScreenButton 방향키(W/A/S/D)를 전환, 선택 저장 |
 | 왜 | 수업 구현은 씬에서 한 방식만 켜 둠. 아날로그 이동과 정확한 4방향 이동의 선호가 사용자마다 다름 |
 | 어떻게 | `MobileControlsToggle.Apply`에서 두 그룹을 SetActive로 전환. OnScreen 컨트롤은 OnDisable 시 입력을 기본값으로 되돌리므로 이동 중 전환해도 입력이 남지 않음. `PlatformCoinLab.TouchLayout`에 저장 |
-| 결과 | ☑ PC Player에서 전환 동작 확인 ☐ Android 실기기 ☐ 영상 촬영 |
+| 결과 | ☑ PC Player에서 전환 동작 확인 ☐ Android 실기기 ☐ 캡처 |
 
 ## 성능 개선
 

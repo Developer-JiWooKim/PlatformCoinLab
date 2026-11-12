@@ -86,3 +86,7 @@ crashlytics-build.properties
 
 # Profiler 캡처(.data)는 100MB를 넘을 수 있어 Git에 넣지 않고 제출 파일로 별도 전달합니다.
 /[Pp]rofilerCaptures/
+
+# 제출 폴더·압축 파일 (Tools/package_submission.ps1이 생성, 빌드·Profiler 데이터 포함)
+/[Ss]ubmission/
+/[Ss]ubmission.zip
