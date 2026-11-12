@@ -1,6 +1,6 @@
 # 포트폴리오 작업 기록
 
-소개 문서(문제 해결 사례·성능 개선·추가 개선)의 원자료입니다. 사례마다 재현 조건·원인·수정·재검증과 증거 파일 위치를 남깁니다. 증거 파일은 `Docs/Evidence/`에 둡니다.
+소개 문서(문제 해결 사례·성능 개선·추가 개선)의 원자료입니다. 사례마다 재현 조건·원인·수정·재검증과 증거 파일 위치를 남깁니다. 증거 파일은 `Docs/Submission/Evidence/`에 둡니다.
 
 ## 문제 해결 사례
 
@@ -11,7 +11,7 @@
 | 증상 | 위/아래(W/S, 스틱 상하) 입력을 계속하면 Player가 Ground 밖으로 나감. 좌우는 정상적으로 막힘 |
 | 재현 조건 | Start 후 W 또는 S를 약 2초 이상 유지 (speed 5, Ground 20×20) |
 | 원인 | `PlatformMover.Update`가 입력을 XZ 평면(`new Vector3(input.x, 0, input.y)`)으로 이동시키면서 제한은 `next.y`에 적용. Y는 이동하지 않으므로 제한이 무의미했고 Z는 제한이 없었음 |
-| 수정 | `next.y = Mathf.Clamp(...)` → `next.z = Mathf.Clamp(next.z, -9f, 9f)` ([PlatformMover.cs](../Assets/MyAssets/Scripts/Ruintime/PlatformMover.cs)) |
+| 수정 | `next.y = Mathf.Clamp(...)` → `next.z = Mathf.Clamp(next.z, -9f, 9f)` ([PlatformMover.cs](../../Assets/MyAssets/Scripts/Ruintime/PlatformMover.cs)) |
 | 재검증 | ☐ PC: W/S 유지 시 z=±9에서 정지 ☐ Android 터치 스틱 ☐ Web |
 | 증거 | ☐ 수정 전·후 캡처 (z 좌표가 ±9를 넘는지) |
 
@@ -48,7 +48,7 @@
 
 ### 플랫폼 정책
 
-- FramePolicy ([FramePolicy.cs](../Assets/MyAssets/Scripts/Ruintime/FramePolicy.cs)), GameSession 오브젝트에 부착: PC/Editor VSync 1, Android VSync 0 + targetFrameRate 30(Inspector 변경 가능) + 화면 꺼짐 방지, Web targetFrameRate -1. 수업 코드 대비 추가: Android FPS 직렬화, sleepTimeout, 적용 값 로그
+- FramePolicy ([FramePolicy.cs](../../Assets/MyAssets/Scripts/Ruintime/FramePolicy.cs)), GameSession 오브젝트에 부착: PC/Editor VSync 1, Android VSync 0 + targetFrameRate 30(Inspector 변경 가능) + 화면 꺼짐 방지, Web targetFrameRate -1. 수업 코드 대비 추가: Android FPS 직렬화, sleepTimeout, 적용 값 로그
 - 확인: ☐ PC Player.log `[FramePolicy]` 줄 ☐ Android logcat ☐ Web 브라우저 콘솔
 
 ### P5. StageLoader 로딩 중 파괴 시 해제 누락·파괴된 객체 접근 가능성 — 직접 발견 (코드 검토)
@@ -57,7 +57,7 @@
 | :--- | :--- |
 | 증상(예상) | 스테이지 로딩 중 씬 종료·오브젝트 파괴 시, 완료 콜백이 파괴된 GameSession에 접근(MissingReferenceException)하고 인스턴스가 해제되지 않음 |
 | 원인 | `ownerDestroyed` 필드가 선언만 되고 true로 바뀌는 곳이 없음. `OnDestroy`는 완료된 핸들만 해제 |
-| 수정 | `OnDestroy`에서 `ownerDestroyed = true` 설정 → 늦게 끝난 로드는 콜백에서 해제만 수행 ([StageLoader.cs](../Assets/MyAssets/Scripts/Ruintime/StageLoader.cs)) |
+| 수정 | `OnDestroy`에서 `ownerDestroyed = true` 설정 → 늦게 끝난 로드는 콜백에서 해제만 수행 ([StageLoader.cs](../../Assets/MyAssets/Scripts/Ruintime/StageLoader.cs)) |
 | 재검증 | ☐ 원격 로드 지연 중 Play Mode 종료 → 오류 로그 없음 (서버 응답 지연 조건 필요) |
 
 ## 직접 추가·개선 기능
@@ -111,7 +111,7 @@
 | :--- | :--- |
 | 해석 | 두 빌드 모두 VSync 대기(약 13~14ms)가 프레임 대부분을 차지 → 이 게임은 60FPS 제한에 묶여 있어 CPU 시간으로는 차이가 드러나지 않음. 개선 효과는 **매 프레임 GC 할당 제거**(GC 수집 빈도·스파이크 위험 감소)로 설명 |
 | 기능 유지 | ☑ 점수·시간·최고 점수 표시 정상 (수정 후 빌드에서 플레이 확인) |
-| 증거 | `ProfilerCaptures/O1_before_every_frame.*`, `O1_after_uicache.*` (.data 각 139MB·111MB, Git 제외 → 제출 파일로 별도 전달). 캡처 이미지 2장 → ☐ `Docs/Evidence/`에 저장 |
+| 증거 | `ProfilerCaptures/O1_before_every_frame.*`, `O1_after_uicache.*` (.data 각 139MB·111MB, Git 제외 → 제출 파일로 별도 전달). 캡처 이미지 2장 → ☐ `Docs/Submission/Evidence/`에 저장 |
 | 측정 한계 | 각 1회 측정, 대표 프레임 1개 비교. `CoinLab.PresentUi` 마커 단독 값과 GC.Collect 횟수는 ☐ 미측정 (저장된 .data를 열어 Hierarchy에서 `PresentUi` 검색으로 보완 가능). Android·Web Player 미측정 |
 
 ### 추가 최적화 후보 (미진행)
@@ -154,3 +154,18 @@
 
 - 화면은 C2~C5가 모두 같은 `30 seconds` → 실패 원인 구분은 로그로 제시. 소개 문서에는 대표 화면 1장 + 로그 표 사용
 - 개선 방향(미적용): Status에 실패 사유 표시(예: `Settings invalid (JSON) → 30s`). 적용 시 3개 플랫폼 제출 빌드 재생성 필요
+
+## P6. Web에서만 코인이 수집되지 않음 — 최종 빌드 검증 중 발견 (2026-11-12)
+
+| 항목 | 내용 |
+| :--- | :--- |
+| 증상 | 최종 Web 빌드(`Builds/Web`, ContentServer `https://localhost:5443/`)에서 코인에 닿아도 수집되지 않음. 같은 커밋의 PC 빌드는 정상 |
+| 재현 조건 | Web Release 프로필(Strip Engine Code 켜짐), 로컬 Addressables 스테이지 로드 후 코인 접촉 |
+| 조사 | 브라우저 Console에 코인 수만큼 `Could not produce class with ID 135. This could be caused by a class being stripped from the build…` + `GameObject contains a component type that is not recognized` 반복. Class ID 135 = SphereCollider |
+| 원인 | Strip Engine Code는 빌드 씬에서 쓰는 엔진 클래스만 남김. 코인의 SphereCollider는 Addressables 프리팹에만 있어 제거됨 → 코인이 충돌체 없이 생성 → 트리거 없음. Player의 CapsuleCollider·Rigidbody는 씬에 있어 유지됨. PC는 사전 빌드된 UnityPlayer.dll을 쓰므로 엔진 스트리핑 영향 없음. Addressables가 콘텐츠 빌드 때 생성하는 link.xml(SphereCollider 포함)은 빌드마다 생성·삭제되는 임시 파일이라 Player 빌드 반영이 보장되지 않음 |
+| 수정 | 프로젝트에 고정 `Assets/MyAssets/link.xml` 추가: `UnityEngine.SphereCollider` 보존. Strip Engine Code는 유지(빌드 크기 유지) |
+| 대안 | Web 프로필 Strip Engine Code 끄기 (확실하지만 wasm 크기 증가) |
+| 재검증 | ☑ Web 재빌드(Addressables New Build → Player) 후 Console에 ID 135 오류·미인식 컴포넌트 경고 없음 ☑ 코인 수집 정상 (2026-11-12 15:20 빌드) |
+| 비용 | `Web.wasm` 23,181,425 B → 23,359,134 B (+177,709 B, +0.77%), `Web.data` 11,435,066 B → 11,622,490 B (+187,424 B). Strip Engine Code 유지 |
+| 버전 영향 | link.xml은 엔진 스트리핑을 하는 Web에만 영향. PC·Android 빌드는 이전 커밋 빌드를 그대로 제출 (동작 차이 없음) |
+| 증거 | `web_console_class135.png` (수정 전 Console) |

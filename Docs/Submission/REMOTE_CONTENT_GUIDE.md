@@ -37,6 +37,8 @@
 dotnet run --no-launch-profile -- --FilesRoot "../../ServerData"
 ```
 
+제출 폴더 구조(`ContentServer/`와 `UnityProject/`가 나란히 있음)에서는 원격 콘텐츠 빌드가 `UnityProject/ServerData`에 생성되므로 `--FilesRoot "../UnityProject/ServerData"`를 사용합니다.
+
 `https://localhost:5443/health`에서 `{"status":"ok"}`를 확인합니다.
 
 ### 1-5. 캐시 초기화
@@ -53,10 +55,10 @@ dotnet run --no-launch-profile -- --FilesRoot "../../ServerData"
 각 시나리오에서 Player 화면(Status 문구)을 캡처하고, 서버 요청 로그를 파일로 남깁니다. 서버를 아래처럼 실행하면 콘솔 출력이 그대로 파일에도 기록됩니다.
 
 ```powershell
-dotnet run --no-launch-profile -- --FilesRoot "../../ServerData" | Tee-Object -FilePath "../../Docs/Evidence/remote_server.log" -Append
+dotnet run --no-launch-profile -- --FilesRoot "../../ServerData" | Tee-Object -FilePath "../../Docs/Submission/Evidence/remote_server.log" -Append
 ```
 
-Player 쪽 오류는 `%USERPROFILE%\AppData\LocalLow\DefaultCompany\PlatformCoinLab\Player.log`에 남습니다. 시나리오가 끝날 때마다 필요한 부분을 `Docs/Evidence/`에 복사합니다.
+Player 쪽 오류는 `%USERPROFILE%\AppData\LocalLow\DefaultCompany\PlatformCoinLab\Player.log`에 남습니다. 시나리오가 끝날 때마다 필요한 부분을 `Docs/Submission/Evidence/`에 복사합니다.
 
 | # | 조건 | 조작 | 기대 결과 | 서버 로그 |
 | :--- | :--- | :--- | :--- | :--- |
@@ -95,7 +97,7 @@ URL은 고정하고 서버 폴더의 파일만 바꾸어 비교하므로 Player�
 ## 5. 정리
 
 1. 서버를 Ctrl+C로 종료하고 `Content/platform-config.json`이 원본인지 확인합니다.
-2. 캡처와 로그가 `Docs/Evidence/`에 있는지 확인합니다. 아래 명령은 `Assets`·`ServerData`·`ProjectSettings`만 대상으로 하므로 `Docs`는 지우지 않습니다.
+2. 캡처와 로그가 `Docs/Submission/Evidence/`에 있는지 확인합니다. 아래 명령은 `Assets`·`ServerData`·`ProjectSettings`만 대상으로 하므로 `Docs`는 지우지 않습니다.
 3. Unity를 닫고 저장소 루트에서 원격 설정 변경과 새로 생긴 파일(StageC, 콘텐츠 상태 파일, 새 번들)을 되돌립니다.
 
 ```powershell

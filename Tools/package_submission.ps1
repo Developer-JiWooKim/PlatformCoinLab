@@ -58,15 +58,24 @@ Move-Item (Join-Path $out "Server\ContentServer") (Join-Path $out "ContentServer
 Remove-Item (Join-Path $out "Server")
 
 Write-Host "[4/6] 소개 문서·원격 절차"
-$docs = @("Docs\PORTFOLIO.md", "Docs\REMOTE_CONTENT_GUIDE.md")
+$docs = @("Docs\Submission\PORTFOLIO.md", "Docs\Submission\REMOTE_CONTENT_GUIDE.md")
+$utf8 = New-Object System.Text.UTF8Encoding $false
 foreach ($doc in $docs) {
-    if (Test-Path $doc) { Copy-Item $doc $out } else { Write-Host "  (없음, 건너뜀) $doc" -ForegroundColor Yellow }
+    if (-not (Test-Path $doc)) { Write-Host "  (없음, 건너뜀) $doc" -ForegroundColor Yellow; continue }
+    # 저장소에서는 Docs/Submission/ 기준 상대 링크(../../Assets/...)이므로, 제출 폴더 구조에 맞게 링크를 바꿉니다.
+    $text = [System.IO.File]::ReadAllText((Resolve-Path $doc), $utf8)
+    $text = $text.Replace("](../../Assets/", "](UnityProject/Assets/")
+    $text = $text.Replace("](../../Server/ContentServer/", "](ContentServer/")
+    $text = $text.Replace("](../../Tools/", "](Tools/")
+    [System.IO.File]::WriteAllText((Join-Path $out (Split-Path $doc -Leaf)), $text, $utf8)
 }
+# 소개 문서에서 링크하는 패키징 스크립트도 함께 넣습니다.
+Export-GitPaths $out @("Tools")
 
 Write-Host "[5/6] 확인 자료 (캡처·로그·Profiler 데이터)"
 $evidence = Join-Path $out "Evidence"
 New-Item -ItemType Directory -Force $evidence | Out-Null
-if (Test-Path "Docs\Evidence") { Copy-Item "Docs\Evidence\*" $evidence -Recurse }
+if (Test-Path "Docs\Submission\Evidence") { Copy-Item "Docs\Submission\Evidence\*" $evidence -Recurse }
 if (Test-Path "ProfilerCaptures") { Copy-Item "ProfilerCaptures" (Join-Path $evidence "ProfilerCaptures") -Recurse }
 
 Write-Host "[6/6] 버전 기록"
