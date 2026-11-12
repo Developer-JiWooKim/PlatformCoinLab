@@ -1,0 +1,16 @@
+=== R2 서버 시작 2026-11-12 14:46:44 ===
+파일 제공 폴더: C:\Users\Admin\Documents\GitHub\PlatformCoinLab_Private\ServerData
+서버 주소: https://localhost:5443
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:5443
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\Admin\Documents\GitHub\PlatformCoinLab_Private\Server\ContentServer
+[14:46:50] GET /health -> 200 (26 ms)
+[14:47:15] GET /StandaloneWindows64/coursestage_assets_all_c8435df4f13b814c1bef3fd7b66d46b9.bundle -> 200 (11 ms)
+[14:56:13] GET /StandaloneWindows64/catalog_0.1.0.hash -> 200 (0 ms)
+[14:56:13] GET /StandaloneWindows64/catalog_0.1.0.json -> 200 (0 ms)
+[14:56:13] GET /StandaloneWindows64/coursestage_assets_all_b478289ef7686acee8916b5ff214c474.bundle -> 200 (0 ms)

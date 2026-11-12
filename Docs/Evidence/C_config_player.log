@@ -1,0 +1,9 @@
+# 원격 JSON 설정 비교 (Builds/WindowsRemoteConfig, Remote Url = https://localhost:5443/platform-config.json, 2026-11-12)
+# 출처: %USERPROFILE%\AppData\LocalLow\DefaultCompany\PlatformCoinLab\Player.log
+# C1 원본(45) → 경고 없음, Next round: 45 seconds
+# C2 broken-config 내용 / C3 invalid-range(500) 내용 / C4 파일 제거(404, 2회 시도) / C5 서버 중지
+Invalid JSON: JSON parse error: Missing a comma or '}' after an object member.; use default 30.
+Invalid roundSeconds; use default 30.
+Config failed: HTTP/1.1 404 Not Found; use default 30.
+Config failed: HTTP/1.1 404 Not Found; use default 30.
+Config failed: Cannot connect to destination host; use default 30.

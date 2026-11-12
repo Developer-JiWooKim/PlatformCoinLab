@@ -90,3 +90,6 @@ crashlytics-build.properties
 # 제출 폴더·압축 파일 (Tools/package_submission.ps1이 생성, 빌드·Profiler 데이터 포함)
 /[Ss]ubmission/
 /[Ss]ubmission.zip
+
+# 포트폴리오 확인 자료의 로그는 추적합니다.
+!/Docs/Evidence/*.log

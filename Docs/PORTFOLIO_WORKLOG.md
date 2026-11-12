@@ -128,3 +128,29 @@
 
 - 2026-11-12: Addressables 활성 프로필 RemotePractice → Default, CourseStage 그룹 경로 Remote → Local, Build Remote Catalog 끔. 기본 게임을 서버 없이 실행하기 위함. RemotePractice 프로필은 원격 비교용으로 유지.
 - 2026-11-12: ContentServer를 `Server/ContentServer/`로 재작성·이동 (포맷으로 원본 유실).
+
+## 원격 콘텐츠 확인 (REMOTE_CONTENT_GUIDE.md 절차, 2026-11-12)
+
+환경: Windows 10, `Builds/WindowsRemote` (RemotePractice 프로필, Remote Catalog), ContentServer `https://localhost:5443`, FilesRoot `ServerData`
+
+| # | 조건 | 결과 | 증거 |
+| :--- | :--- | :--- | :--- |
+| R1 | 서버 중지·캐시 없음 | ☑ 스테이지 목록 표시, `Stage load failed. Press Reload Stage.`, Start 잠금. Player.log: `Curl error 7 … Could not connect`, `ConnectionError : Cannot connect to destination host` (404 아님) | `R1_server_off.png`, `R1_player.log` |
+| R2 | 서버 실행 후 Load Stage | ☑ `Stage ready. Press Start.`, 스테이지 로드, 한 판 완료·결과 화면. 서버: `GET /StandaloneWindows64/coursestage_…c8435….bundle -> 200 (11 ms)` (14:47:15) | `R2_recovered.png`, `remote_server.log` |
+| R4 | StageC 추가 → Update a Previous Build → **Player 재빌드 없이** V1 재실행 | ☑ 목록 `/4`, stage-c 선택·로드·플레이. 서버: 시작 시 `catalog_0.1.0.hash` → `catalog_0.1.0.json` → 새 번들 `b478….bundle` 모두 200 (14:56:13) | `R4_stage_c_added.png`, `remote_server.log` |
+
+- 관찰: CourseStage는 Pack Together라 스테이지 하나 추가에도 그룹 번들 전체(73.5KB, 기존 스테이지 포함)를 다시 받음. 개선 방향: 스테이지별 Pack Separately → 새 스테이지만 다운로드 (미적용)
+- R3(캐시 로드)·R5/R6(번들 404·복구)는 미진행
+
+### 원격 JSON 설정 비교 (Builds/WindowsRemoteConfig, Remote Url 고정·서버 파일만 교체)
+
+| # | 서버의 platform-config.json | 화면 | Player.log | 서버 로그 | 증거 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| C1 | 원본 `{"roundSeconds":45}` | ☑ `Next round: 45 seconds`, 타이머 45부터 시작 | 경고 없음 | 200 | `C1_config_45.png` |
+| C2 | 문법 오류 | ☑ 30초 | `Invalid JSON: … Missing a comma or '}'` | 200 | `C2_config_broken.png` |
+| C3 | 범위 밖 500 | ☑ 30초 | `Invalid roundSeconds` | 200 | `C3_config_range.png` |
+| C4 | 파일 없음 | ☑ 30초 | `Config failed: HTTP/1.1 404 Not Found` | 404 | `C4_config_404.png` |
+| C5 | 서버 중지 | ☑ 30초 | `Config failed: Cannot connect to destination host` | 없음 | `C_config_player.log` |
+
+- 화면은 C2~C5가 모두 같은 `30 seconds` → 실패 원인 구분은 로그로 제시. 소개 문서에는 대표 화면 1장 + 로그 표 사용
+- 개선 방향(미적용): Status에 실패 사유 표시(예: `Settings invalid (JSON) → 30s`). 적용 시 3개 플랫폼 제출 빌드 재생성 필요

@@ -1,0 +1,21 @@
+=== 설정 비교 서버 시작 (FilesRoot: Content) 2026-11-12 14:59:24 ===
+파일 제공 폴더: C:\Users\Admin\Documents\GitHub\PlatformCoinLab_Private\Server\ContentServer\Content
+서버 주소: https://localhost:5443
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:5443
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\Admin\Documents\GitHub\PlatformCoinLab_Private\Server\ContentServer
+[14:59:26] GET /platform-config.json -> 200 (5 ms)
+[14:59:44] GET /StandaloneWindows64/catalog_0.1.0.hash -> 404 (0 ms)
+[14:59:49] GET /platform-config.json -> 200 (3 ms)
+[15:00:43] GET /platform-config.json -> 200 (0 ms)
+[15:01:32] GET /platform-config.json -> 200 (0 ms)
+[15:02:02] GET /platform-config.json -> 200 (0 ms)
+[15:02:35] GET /platform-config.json -> 200 (0 ms)
+[15:03:55] GET /platform-config.json -> 404 (0 ms)
+[15:04:11] GET /platform-config.json -> 404 (0 ms)
+[15:04:21] GET /platform-config.json -> 404 (0 ms)

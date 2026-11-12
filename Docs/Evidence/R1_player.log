@@ -1,0 +1,7 @@
+# R1: 서버 중지·캐시 없음 상태에서 Builds/WindowsRemote 실행 (2026-11-12 14:45경)
+# 출처: %USERPROFILE%\AppData\LocalLow\DefaultCompany\PlatformCoinLab\Player.log 95-99행
+Curl error 7: Failed to connect to localhost port 5443 after 2213 ms: Could not connect to server
+Curl error 7: Failed to connect to localhost port 5443 after 2248 ms: Could not connect to server
+RemoteProviderException : Unable to load asset bundle from : https://localhost:5443/StandaloneWindows64/coursestage_assets_all_c8435df4f13b814c1bef3fd7b66d46b9.bundle
+UnityWebRequest result : ConnectionError : Cannot connect to destination host
+url : https://localhost:5443/StandaloneWindows64/coursestage_assets_all_c8435df4f13b814c1bef3fd7b66d46b9.bundle
