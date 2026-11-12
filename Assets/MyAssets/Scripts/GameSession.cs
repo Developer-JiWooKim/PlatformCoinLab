@@ -8,7 +8,10 @@ namespace PlatformCoinLab
     {
         private static readonly ProfilerMarker UiMarker = new("CoinLab.PresentUi");
 
-        private const string BestKey = "PlatformCoinLab.Best";
+        // 최고 점수는 스테이지마다 따로 저장. 예: PlatformCoinLab.Best.stage-main
+        private const string BestKeyPrefix = "PlatformCoinLab.Best.";
+        private const string LegacyBestKey = "PlatformCoinLab.Best";
+        private const string LegacyStageId = "stage-main";
 
         [SerializeField] private Transform player;
         [SerializeField] private CoinPickup[] coins;
@@ -22,7 +25,6 @@ namespace PlatformCoinLab
         [SerializeField] private UnityEngine.UI.Button startButton;
         [SerializeField] private TMP_Text bestText;
 
-        // 처음 표시할 0점과 구분하려고 -1로 시작합니다. 첫 RefreshUi에서는 반드시 갱신됩니다.
         private int shownScore = -1;
         private int shownSeconds = -1;
         private int shownBest = -1;
@@ -31,6 +33,7 @@ namespace PlatformCoinLab
         private bool shownReady;
 
         private int best;
+        private string bestKey;
         private AudioClip generatedCollectClip;
         private CoinRound round;
         private Vector3 startPosition;
@@ -43,16 +46,17 @@ namespace PlatformCoinLab
         public bool IsPlaying => playing;
         public bool CanMove => playing && !paused;
         public bool IsLoading => busy;
-        // &&는 왼쪽부터 확인하므로 coins가 null이면 Length에 접근하지 않습니다.
         public bool IsReady => coins != null && coins.Length > 0 && !busy;
 
         private void Awake()
         {
-            // 저장한 최고 점수가 없으면 기본값 0으로 시작합니다.
-            best = PlayerPrefs.GetInt(BestKey, 0);
-
             round = new CoinRound(roundSeconds);
             startPosition = player.position;
+
+            MigrateLegacyBest();
+            // StageLoader가 스테이지 목록을 받기 전까지는 기본 스테이지의 기록을 표시합니다.
+            // RefreshUi가 round를 사용하므로 round 생성 뒤에 호출합니다.
+            SetStageId(LegacyStageId);
 
             // 외부 AudioClip이 연결되어 있지 않을 때만 짧은 수집음을 직접 만듭니다.
             if (collectAudio != null && collectAudio.clip == null)
@@ -79,7 +83,6 @@ namespace PlatformCoinLab
         {
             if (generatedCollectClip != null)
             {
-                // 직접 생성한 클립만 정리합니다. Inspector에 연결한 외부 음원은 제거하지 않습니다.
                 Destroy(generatedCollectClip);
             }
         }
@@ -93,7 +96,6 @@ namespace PlatformCoinLab
         {
             if (playing && !paused)
             {
-                // 위->아래: 이번 프레임의 시간을 반영한 뒤 종료 여부를 판단합니다.
                 round.Tick(Time.deltaTime);
 
                 if (round.IsFinished)
@@ -129,7 +131,6 @@ namespace PlatformCoinLab
 
         public bool TryCollect(int id)
         {
-            // 진행 중이 아니면 수집을 요청하지 않고, 진행 중이어도 최종 승인 여부는 CoinRound가 판단합니다.
             if (!CanMove || !round.TryCollect(id))
             {
                 return false;
@@ -154,7 +155,6 @@ namespace PlatformCoinLab
 
         public void SetStage(CoinPickup[] stageCoins)
         {
-            // null은 아직 스테이지가 없다는 뜻입니다. 빈 배열로 바꾸어 아래 foreach를 안전하게 건너뜁니다.
             coins = stageCoins ?? new CoinPickup[0];
             foreach (CoinPickup coin in coins)
             {
@@ -183,7 +183,6 @@ namespace PlatformCoinLab
                 return;
             }
 
-            // 다음 라운드의 제한 시간을 허용 범위인 10~120초 안으로 맞춥니다.
             roundSeconds = Mathf.Clamp(seconds, 10, 120);
         }
 
@@ -193,18 +192,46 @@ namespace PlatformCoinLab
             showingResult = true;
             SaveBest();
         }
+        public void SetStageId(string stageId)
+        {
+            if (playing)
+            {
+                return;
+            }
+
+            bestKey = BestKeyPrefix + (string.IsNullOrEmpty(stageId) ? LegacyStageId : stageId);
+            best = PlayerPrefs.GetInt(bestKey, 0);
+
+            RefreshUi();
+        }
+
+        private static void MigrateLegacyBest()
+        {
+            if (!PlayerPrefs.HasKey(LegacyBestKey))
+            {
+                return;
+            }
+
+            string newKey = BestKeyPrefix + LegacyStageId;
+            if (!PlayerPrefs.HasKey(newKey))
+            {
+                PlayerPrefs.SetInt(newKey, PlayerPrefs.GetInt(LegacyBestKey, 0));
+            }
+
+            PlayerPrefs.DeleteKey(LegacyBestKey);
+            PlayerPrefs.Save();
+        }
+
         public void SaveBest()
         {
-            // 기존 최고 점수와 이번 점수 중 큰 값만 남겨 기록이 낮아지지 않게 합니다.
             best = Mathf.Max(best, Score);
-            PlayerPrefs.SetInt(BestKey, best);
-            // 메모리에서 바꾼 저장 값을 실제 저장소에 반영합니다.
+            PlayerPrefs.SetInt(bestKey, best);
             PlayerPrefs.Save();
         }
 
         private void OnApplicationPause(bool value)
         {
-            // 중단이면 true, 복귀이면 false입니다. 같은 값을 이동·시간 처리의 잠금에도 사용합니다.
+            // 중단:true, 복귀:false 
             paused = value;
             if (value)
             {
@@ -219,7 +246,6 @@ namespace PlatformCoinLab
             // hudPanel.SetActive(playing);
             // resultPanel.SetActive(showingResult);
             // startButton.interactable = IsReady;
-            // // 0.2초가 남았을 때 0으로 보이지 않도록 올림해서 1초로 표시합니다.
             // hud.text = $"Score: {Score}  Time: {Mathf.CeilToInt(round.Remaining)}";
             // resultText.text = $"Score: {Score}";
 

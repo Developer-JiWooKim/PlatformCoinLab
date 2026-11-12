@@ -1,21 +1,111 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace PlatformCoinLab.Runtime
 {
     public sealed class StageLoader : MonoBehaviour
     {
+        private const string SelectedStageKey = "PlatformCoinLab.SelectedStage";
+
         [SerializeField] private GameSession session;
-        [SerializeField] private string address = "state-main";
+        [SerializeField] private string address = "stage-main";
+        [SerializeField] private string stageLabel = "stage";
+        [SerializeField] private TMP_Text stageNameText;
+
+        private readonly List<string> stageAddresses = new();
+        private int selectedIndex;
 
         private AsyncOperationHandle<GameObject> handle;
         private bool ownerDestroyed;
 
-        // private void Start()
-        // {
-        //     LoadStage();
-        // }
+        public string SelectedAddress => stageAddresses.Count > 0 ? stageAddresses[selectedIndex] : address;
+
+        private void Start()
+        {
+            session.SetBusy(true);
+            session.SetStatus("Finding stages...");
+
+            AsyncOperationHandle<IList<IResourceLocation>> locations = Addressables.LoadResourceLocationsAsync(stageLabel, typeof(GameObject));
+            locations.Completed += OnLocationsCompleted;
+        }
+
+        private void OnLocationsCompleted(AsyncOperationHandle<IList<IResourceLocation>> operation)
+        {
+            stageAddresses.Clear();
+
+            if (operation.Status == AsyncOperationStatus.Succeeded && operation.Result != null)
+            {
+                stageAddresses.AddRange(operation.Result
+                    .Select(location => location.PrimaryKey)
+                    .Distinct()
+                    .OrderBy(key => key, StringComparer.Ordinal));
+            }
+            else
+            {
+                Debug.LogWarning($"Stage list failed: {operation.OperationException}; use default '{address}'.");
+            }
+
+            Addressables.Release(operation);
+
+            if (ownerDestroyed)
+            {
+                return;
+            }
+
+            if (stageAddresses.Count == 0)
+            {
+                stageAddresses.Add(address);
+            }
+
+            string saved = PlayerPrefs.GetString(SelectedStageKey, address);
+            selectedIndex = Mathf.Max(0, stageAddresses.IndexOf(saved));
+
+            session.SetBusy(false);
+            ApplySelection();
+            LoadStage();
+        }
+
+        public void SelectNext()
+        {
+            ChangeSelection(1);
+        }
+
+        public void SelectPrevious()
+        {
+            ChangeSelection(-1);
+        }
+
+        private void ChangeSelection(int step)
+        {
+            if (session.IsPlaying || session.IsLoading || stageAddresses.Count <= 1)
+            {
+                return;
+            }
+
+            selectedIndex = (selectedIndex + step + stageAddresses.Count) % stageAddresses.Count;
+
+            PlayerPrefs.SetString(SelectedStageKey, SelectedAddress);
+            PlayerPrefs.Save();
+
+            ApplySelection();
+            LoadStage();
+        }
+
+        private void ApplySelection()
+        {
+            session.SetStageId(SelectedAddress);
+
+            if (stageNameText != null)
+            {
+                stageNameText.text = $"Stage {selectedIndex + 1}/{stageAddresses.Count}: {SelectedAddress}";
+            }
+        }
 
         public void LoadStage()
         {
@@ -24,13 +114,15 @@ namespace PlatformCoinLab.Runtime
                 return;
             }
 
+            string target = SelectedAddress;
+
             session.SetBusy(true);
-            session.SetStatus("Loading stage...");
+            session.SetStatus($"Loading {target}...");
             session.SetStage(null);
 
             ReleaseOwnedOperation();
 
-            handle = Addressables.InstantiateAsync(address, Vector3.zero, Quaternion.identity);
+            handle = Addressables.InstantiateAsync(target, Vector3.zero, Quaternion.identity);
 
             handle.Completed += OnCompleted;
         }
@@ -68,6 +160,8 @@ namespace PlatformCoinLab.Runtime
 
         private void OnDestroy()
         {
+            ownerDestroyed = true;
+
             if (handle.IsValid() && handle.IsDone)
             {
                 ReleaseOwnedOperation();

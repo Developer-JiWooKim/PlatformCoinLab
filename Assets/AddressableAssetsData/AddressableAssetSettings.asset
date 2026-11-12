@@ -20,6 +20,7 @@ MonoBehaviour:
   m_DisableWriteTypeTree: 0
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
+  m_BundleLocalCatalog: 0
   m_CatalogRequestsTimeout: 0
   m_DisableCatalogUpdateOnStart: 0
   m_InternalIdNamingMode: 0
@@ -119,6 +120,7 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - stage-main
+    - stage
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 07d0806427634624b80c7687f985a8a6, type: 2}

@@ -83,3 +83,6 @@ crashlytics-build.properties
 
 # 서버 프로젝트(ASP.NET Core)는 Unity가 생성한 csproj가 아니므로 추적합니다.
 !/Server/**/*.csproj
+
+# Profiler 캡처(.data)는 100MB를 넘을 수 있어 Git에 넣지 않고 제출 파일로 별도 전달합니다.
+/[Pp]rofilerCaptures/
