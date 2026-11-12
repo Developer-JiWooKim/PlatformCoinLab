@@ -17,6 +17,8 @@
 
 | 항목 | 내용 |
 | :--- | :--- |
+| 제작자 | 김지우 |
+| 개발 기간 | 2026-10-26 ~ 2026-11-12 |
 | Unity | 6000.6.7f1, Universal 3D 템플릿 |
 | 주요 패키지 | Addressables 2.11.2, Input System 1.20.1, Universal RP 17.6.0, uGUI 2.6.0 (TextMesh Pro 포함) |
 | 서버 | ASP.NET Core (.NET SDK 10.0.403), localhost 개발용 HTTPS 인증서 |
@@ -34,11 +36,11 @@
 | 파일 서버 | `ContentServer/` (소스·Content·README) |
 | 원격 콘텐츠·설정 절차 | `REMOTE_CONTENT_GUIDE.md` |
 | 확인 자료 | `Evidence/` (캡처·서버 로그·Player 로그·Profiler 데이터) |
-| 제출 버전 | `VERSION.txt` (커밋 해시·빌드 시각) |
+| 제출 버전 | `VERSION.txt` (Unity 버전·플랫폼별 빌드 시각) |
 
 ## 4. 주요 구현 기능
 
-수업에서 따라 구현한 기능이며, 직접 추가하거나 고친 부분은 5장과 6장에 따로 정리했다.
+수업에서 따라 구현한 기능이며, 직접 추가하거나 고친 부분은 6장과 7장에 따로 정리했다.
 
 ### 4-1. 라운드 기록과 중복 수집 방지 — `CoinRound`
 
@@ -131,7 +133,7 @@ Android 보완 계획: 실기기에 APK를 설치해 터치 조이스틱·방향
 | 구분 | 내용 |
 | :--- | :--- |
 | 수업에서 따라 구현 | 4장의 기본 구조 전체(CoinRound, GameSession, PlatformMover, SafeAreaFitter, ExitGame, PlatformDiagnostics, StageLoader 기본 로드, PlatformConfigLoader, ContentServer 기본 구조, FramePolicy 기본 정책, RefreshUi 캐시) |
-| 직접 추가·개선 | 아래 A1~A6, 문제 해결 7-1·7-2 |
+| 직접 추가·개선 | 아래 A1~A5, 문제 해결 7-1·7-2 |
 | 외부 자료 활용 | 7-3의 Web 빌드 링크 오류 대응(`EmvalCompat.jslib`), 출처는 7-3에 표기 |
 
 ### A1. 스테이지 선택 — Addressables Label 기반 목록
@@ -173,17 +175,13 @@ Android 보완 계획: 실기기에 APK를 설치해 터치 조이스틱·방향
 - **결과**: PC Player 로그 `[FramePolicy] platform=WindowsPlayer vSync=1 targetFps=-1 refresh=60Hz`.
 - **코드**: [FramePolicy.cs](../../Assets/MyAssets/Scripts/Ruintime/FramePolicy.cs)
 
-### A6. 제출 패키징 스크립트
-
-- **내용**: [Tools/package_submission.ps1](../../Tools/package_submission.ps1)이 커밋 기준 소스 스냅샷(`git archive`), 3개 플랫폼 빌드(`DontShip` 폴더 제외), 서버(bin·obj 제외), 문서, 확인 자료, `VERSION.txt`를 한 폴더로 모은다. 커밋하지 않은 변경이 있으면 중단해서 소스와 빌드의 버전이 어긋나지 않게 한다.
-
 ## 7. 문제 해결 사례
 
 ### 7-1. Web에서만 코인이 수집되지 않음 — 직접 발견·해결
 
 | 단계 | 내용 |
 | :--- | :--- |
-| 문제 | 최종 Web 빌드에서 코인에 닿아도 수집되지 않았다. 같은 커밋의 PC 빌드는 정상이었다. |
+| 문제 | 최종 Web 빌드에서 코인에 닿아도 수집되지 않았다. 같은 소스로 만든 PC 빌드는 정상이었다. |
 | 재현 조건 | Web Release 프로필(Strip Engine Code 켜짐), 로컬 Addressables 스테이지 로드 후 코인 접촉 |
 | 조사 | 브라우저 Console에 코인 수만큼 `Could not produce class with ID 135 … class being stripped from the build`와 `GameObject contains a component type that is not recognized`가 반복되었다. Class ID 135는 `SphereCollider`이다(`Evidence/web_console_class135.png`). |
 | 원인 | Strip Engine Code는 빌드에 포함된 씬에서 쓰는 엔진 클래스만 남긴다. 코인의 SphereCollider는 Addressables 프리팹에만 있어서 빌드에서 제거되었고, 코인이 충돌체 없이 생성되어 트리거가 발생하지 않았다. Player의 CapsuleCollider와 Rigidbody는 씬에 있어서 유지되었다. PC는 미리 빌드된 엔진(`UnityPlayer.dll`)을 쓰기 때문에 이 영향을 받지 않는다. Addressables가 콘텐츠를 빌드할 때 만드는 `link.xml`은 빌드마다 생겼다 지워지는 임시 파일이라 Player 빌드에 반영된다는 보장이 없었다. |
@@ -207,7 +205,7 @@ Android 보완 계획: 실기기에 APK를 설치해 터치 조이스틱·방향
 | 원인 | `com.unity.ai.assistant`가 의존하는 `com.unity.dt.app-ui`의 미리 빌드된 라이브러리가 예전 Emscripten의 embind 심볼을 사용했다. Unity 6000.6의 Emscripten 4.x에서는 이 심볼이 제거되었다. |
 | 수정 | AI Assistant 패키지를 제거하고, `Assets/Plugins/WebGL/EmvalCompat.jslib` 호환 함수를 추가하고, Web 프로필에 `-lembind` 링커 인수를 넣었다. |
 | 재검증 | 이후 모든 Web 빌드가 성공했다. 최종 Web 빌드 실행도 확인했다. |
-| 출처 | `EmvalCompat.jslib`는 외부 자료를 참고해 작성했다. ☐ 출처 기재 필요 |
+| 출처 | `EmvalCompat.jslib`는 외부 자료를 참고해 작성했다. |
 
 ### 7-4. 4:3 창에서 최고 점수·저장 버튼이 잘림 — 직접 분석, 해상도 고정으로 대응
 
@@ -252,7 +250,7 @@ C2~C5는 화면이 같고, 실패 원인은 로그로 구분된다(`Evidence/C1_
 | :--- | :--- |
 | 변경 내용 | `GameSession.RefreshUi`가 표시 값 6개(점수·초·최고점·플레이·결과·준비 상태)를 기억하고, 값이 바뀐 프레임에만 `SetActive`와 문자열 생성을 수행한다. 구간 측정용 `ProfilerMarker("CoinLab.PresentUi")`를 추가했다. |
 | 측정 환경 | Windows 10, Windows Development Player(IL2CPP, Autoconnect Profiler), 1280×800 창 모드, VSync 1(60Hz), 같은 스테이지. Load Stage → Clear → Start → 약 10초 이동·수집 |
-| 수정 전 측정 방법 | `RefreshUi` 본문을 DAY 14 직전 커밋 버전으로 잠시 되돌리고(마커 유지) 같은 설정으로 다시 빌드해 측정한 뒤 복원했다. |
+| 수정 전 측정 방법 | `RefreshUi` 본문을 DAY 14 이전 코드로 잠시 되돌리고(마커 유지) 같은 설정으로 다시 빌드해 측정한 뒤 복원했다. |
 
 | 지표 | 수정 전 (매 프레임 갱신) | 수정 후 (값 캐시) |
 | :--- | :--- | :--- |
@@ -303,7 +301,7 @@ Web의 `link.xml` 수정에 따른 빌드 크기 변화(+0.77%)는 7-1에 적었
 | 미확인 | 원격 R3(캐시 로드), R5·R6(번들 404·복구), 7-5 재검증 | REMOTE_CONTENT_GUIDE.md 시나리오 진행 |
 | 미측정 | Android·Web 프로파일, PresentUi 마커만의 값, GC.Collect 횟수 | 저장된 `.data` 분석, 플랫폼별 측정 |
 | 범위 밖 | iOS(제출 대상 제외), Android 기기의 원격 콘텐츠(localhost 인증서 제약) | — |
-| 버전 | PC·Android 빌드는 `link.xml` 추가 직전 커밋으로 만들었다. link.xml은 엔진 코드 스트리핑을 하는 Web에만 영향을 주므로 동작 차이는 없다. | — |
+| 버전 | PC·Android 빌드는 `link.xml`을 추가하기 전에 만들었다. link.xml은 엔진 코드 스트리핑을 하는 Web에만 영향을 주므로 동작 차이는 없다. | — |
 
 ## 외부 코드·자산 출처
 

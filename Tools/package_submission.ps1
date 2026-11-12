@@ -66,11 +66,8 @@ foreach ($doc in $docs) {
     $text = [System.IO.File]::ReadAllText((Resolve-Path $doc), $utf8)
     $text = $text.Replace("](../../Assets/", "](UnityProject/Assets/")
     $text = $text.Replace("](../../Server/ContentServer/", "](ContentServer/")
-    $text = $text.Replace("](../../Tools/", "](Tools/")
     [System.IO.File]::WriteAllText((Join-Path $out (Split-Path $doc -Leaf)), $text, $utf8)
 }
-# 소개 문서에서 링크하는 패키징 스크립트도 함께 넣습니다.
-Export-GitPaths $out @("Tools")
 
 Write-Host "[5/6] 확인 자료 (캡처·로그·Profiler 데이터)"
 $evidence = Join-Path $out "Evidence"
@@ -81,10 +78,9 @@ if (Test-Path "ProfilerCaptures") { Copy-Item "ProfilerCaptures" (Join-Path $evi
 Write-Host "[6/6] 버전 기록"
 @"
 PlatformCoinLab 제출본
-커밋: $commit ($(git log -1 --format=%cd --date=format:'%Y-%m-%d %H:%M'))
 생성: $(Get-Date -Format 'yyyy-MM-dd HH:mm')
 Unity: $((Get-Content ProjectSettings\ProjectVersion.txt -TotalCount 1) -replace 'm_EditorVersion: ','')
-빌드 출력 시각: PC $((Get-Item Builds\PC\PlatformCoinLab.exe).LastWriteTime.ToString('yyyy-MM-dd HH:mm')), Android $((Get-ChildItem Builds\Android\*.apk | Select-Object -First 1).LastWriteTime.ToString('yyyy-MM-dd HH:mm')), Web $((Get-Item Builds\Web\index.html).LastWriteTime.ToString('yyyy-MM-dd HH:mm'))
+빌드 출력 시각: PC $((Get-Item Builds\PC\PlatformCoinLab.exe).LastWriteTime.ToString('yyyy-MM-dd HH:mm')), Android $((Get-ChildItem Builds\Android\*.apk | Select-Object -First 1).LastWriteTime.ToString('yyyy-MM-dd HH:mm')), Web $((Get-ChildItem Builds\Web\Build\*.wasm | Select-Object -First 1).LastWriteTime.ToString('yyyy-MM-dd HH:mm'))
 "@ | Out-File -Encoding utf8 (Join-Path $out "VERSION.txt")
 
 $size = (Get-ChildItem $out -Recurse -File | Measure-Object Length -Sum).Sum / 1MB
