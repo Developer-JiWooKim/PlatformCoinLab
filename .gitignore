@@ -80,3 +80,6 @@ crashlytics-build.properties
 # Entities SubScene 빌드 캐시 — SubScene 을 쓰면 에디터가 자동으로 만들고 다시 만든다. 소스가 아니다.
 /[Aa]ssets/SceneDependencyCache/
 /[Aa]ssets/SceneDependencyCache.meta
+
+# 서버 프로젝트(ASP.NET Core)는 Unity가 생성한 csproj가 아니므로 추적합니다.
+!/Server/**/*.csproj
